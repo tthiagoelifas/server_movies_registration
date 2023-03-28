@@ -2,8 +2,9 @@ const { Router } = require('express');
 
 const usersRoutes = Router();
 
-usersRoutes.get("/", (req,res) =>{
-  res.send('O projeto deu certo!!!')
+usersRoutes.post("/", (req,res) =>{
+  const {name, email, password} = req.body;
+  res.json({name, email, password});
 });
 
 
