@@ -1,5 +1,10 @@
-const { Route } = require('express');
+const { Router } = require('express');
 
-const route = Route();
+const usersRoutes = Router();
 
-const userRoute = Route();
+usersRoutes.get("/", (req, res) => {
+  res.send('Novo Projeto deu certo!')
+});
+
+
+module.exports = usersRoutes;
