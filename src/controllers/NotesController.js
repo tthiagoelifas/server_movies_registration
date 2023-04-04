@@ -1,4 +1,3 @@
-const { response } = require("express");
 const knex = require("../database/knex");
 
 class NotesController{
@@ -42,14 +41,44 @@ class NotesController{
     return res.json();
   }
   async index(req,res){
-    const { title, user_id} = req.query;
-    
-    const notes = await knex("notes")
-      .where({ user_id })
-      .whereLike("title", `%${title}%`)     
-      .orderBy('title');
+    const { title, user_id, tags} = req.query;
 
-    return res.json({notes});
+    let notes;
+
+    if (tags){
+      const filterTags = tags.split(',').map(tag => tag.trim());
+      
+      notes = await knex("tags")
+      .select([
+        "notes.id",
+        "notes.title",
+        "notes.user_id",
+      ])
+      .where("notes.user_id", user_id)
+      .whereLike("notes.title", `%${title}%`)
+      .whereIn("name", filterTags)
+      .innerJoin("notes", "notes.id", "tags.note_id")
+      .orderBy("notes.title");
+
+    }else{
+      notes = await knex("notes")
+        .where({ user_id })
+        .whereLike("title", `%${title}%`)     
+        .orderBy('title');
+    }
+
+    const userTags = await knex("tags").where({ user_id });
+    const notesWithTags = notes.map(note => {
+      const noteTags = userTags.filter(tag => tag.note_id === note.id);
+
+      return {
+        ...note,
+        tags: noteTags
+      }
+    })
+
+    return res.json(notesWithTags);
+
   }
 
 }
