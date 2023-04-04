@@ -41,6 +41,16 @@ class NotesController{
     await knex("notes").where({ id }).delete();
     return res.json();
   }
+  async index(req,res){
+    const { title, user_id} = req.query;
+    
+    const notes = await knex("notes")
+      .where({ user_id })
+      .whereLike("title", `%${title}%`)     
+      .orderBy('title');
+
+    return res.json({notes});
+  }
 
 }
 
