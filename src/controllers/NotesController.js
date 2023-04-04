@@ -1,3 +1,4 @@
+const { response } = require("express");
 const knex = require("../database/knex");
 
 class NotesController{
@@ -23,6 +24,16 @@ class NotesController{
     await knex("tags").insert(tagsInsert);
     
     res.json();
+  }
+  async show(req, res){
+    const { id } = req.params;
+    const note = await knex("notes").where({id}).first();
+    const tags = await knex("tags").where({note_id: id}).orderBy("name");
+
+    return res.json({
+      ...note,
+      tags
+    });
   }
 }
 
